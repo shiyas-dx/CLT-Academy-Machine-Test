@@ -66,6 +66,7 @@ export default function AddProductPage() {
       const videos = urls.filter(u =>  u.match(/\.(mp4|webm|ogg)(\?|$)/i));
       await createProduct.mutateAsync({ ...data, images, videos });
       router.push('/products');
+      router.refresh();
     } catch (e: any) {
       setUploadError(e.message || 'Failed to save product');
     } finally {

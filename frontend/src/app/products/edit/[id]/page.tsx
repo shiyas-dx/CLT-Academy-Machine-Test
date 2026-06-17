@@ -111,6 +111,7 @@ export default function EditProductPage() {
     try {
       await updateProduct({ id, ...data });
       router.push("/products");
+      router.refresh();
     } catch (err) {
       console.error(err);
     }

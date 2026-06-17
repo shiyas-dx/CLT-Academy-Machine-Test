@@ -25,7 +25,7 @@ exports.getUploadSignature = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
     try {
-        const products = await Product.find({});
+        const products = await Product.find({}).populate('createdBy', '_id name email');
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch products', error: error.message });
@@ -34,7 +34,7 @@ exports.getProducts = async (req, res) => {
 
 exports.getProductById = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await Product.findById(req.params.id).populate('createdBy', '_id name email');
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }

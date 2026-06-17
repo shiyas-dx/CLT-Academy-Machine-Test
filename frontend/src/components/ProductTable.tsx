@@ -15,7 +15,7 @@ type SortDir = 'asc' | 'desc';
 export default function ProductTable({ products }: { products: any[] }) {
   const { data: session } = useSession();
   const deleteProduct = useDeleteProduct();
-  const addToCart     = useAddToCart();
+  const addToCart = useAddToCart();
   const [sortKey, setSortKey] = useState<SortKey>('name');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -29,7 +29,7 @@ export default function ProductTable({ products }: { products: any[] }) {
     const valA = sortKey === 'price' ? a.price : a.name?.toLowerCase();
     const valB = sortKey === 'price' ? b.price : b.name?.toLowerCase();
     if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-    if (valA > valB) return sortDir === 'asc' ?  1 : -1;
+    if (valA > valB) return sortDir === 'asc' ? 1 : -1;
     return 0;
   });
 
@@ -81,7 +81,8 @@ export default function ProductTable({ products }: { products: any[] }) {
           </thead>
           <tbody className="divide-y divide-border">
             {sorted.map((p, i) => {
-              const isOwner = session?.user && (session.user as any).id === p.createdBy;
+              const productOwnerId = typeof p.createdBy === 'object' ? p.createdBy?._id : p.createdBy;
+              const isOwner = session?.user && (session.user as any).id === productOwnerId;
               return (
                 <motion.tr
                   key={p._id}
@@ -90,68 +91,70 @@ export default function ProductTable({ products }: { products: any[] }) {
                   transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.35, ease: 'easeOut' }}
                   className="group transition-colors hover:bg-secondary/40"
                 >
-                {/* Product */}
-                <td className="px-5 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl bg-secondary border border-border">
-                      {p.images?.[0] ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">—</div>
+                  {/* Product */}
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-xl bg-secondary border border-border">
+                        {p.images?.[0] ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">—</div>
+                        )}
+                      </div>
+                      <span className="font-medium text-foreground truncate max-w-[180px]">{p.name}</span>
+                    </div>
+                  </td>
+
+                  {/* Price */}
+                  <td className="px-5 py-3.5">
+                    <span className="badge-violet font-bold">${p.price?.toFixed(2)}</span>
+                  </td>
+
+                  {/* Description */}
+                  <td className="px-5 py-3.5 text-muted-foreground text-xs max-w-[250px]">
+                    <p className="line-clamp-2">{p.description || '—'}</p>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => addToCart.mutate(p._id)}
+                        disabled={addToCart.isPending}
+                        title="Add to cart"
+                        className="btn-ghost px-2 py-1.5 text-xs"
+                      >
+                        <ShoppingCart className="h-3.5 w-3.5" />
+                      </button>
+                      <Link
+                        href={`/products/${p._id}`}
+                        title="View Details"
+                        className="btn-ghost px-2 py-1.5 text-xs"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                      </Link>
+                      {isOwner && (
+                        <>
+                          <Link
+                            href={`/products/edit/${p._id}`}
+                            title="Edit"
+                            className="btn-ghost px-2 py-1.5 text-xs"
+                          >
+                            <Edit className="h-3.5 w-3.5" />
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(p._id, p.name)}
+                            disabled={deletingId === p._id}
+                            title="Delete"
+                            className="btn-destructive px-2 py-1.5 text-xs"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </>
                       )}
                     </div>
-                    <span className="font-medium text-foreground truncate max-w-[180px]">{p.name}</span>
-                  </div>
-                </td>
-
-                {/* Price */}
-                <td className="px-5 py-3.5">
-                  <span className="badge-violet font-bold">${p.price?.toFixed(2)}</span>
-                </td>
-
-                {/* Description */}
-                <td className="px-5 py-3.5 text-muted-foreground text-xs max-w-[250px]">
-                  <p className="line-clamp-2">{p.description || '—'}</p>
-                </td>
-
-                {/* Actions */}
-                <td className="px-5 py-3.5">
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => addToCart.mutate(p._id)}
-                      disabled={addToCart.isPending}
-                      title="Add to cart"
-                      className="btn-ghost px-2 py-1.5 text-xs"
-                    >
-                      <ShoppingCart className="h-3.5 w-3.5" />
-                    </button>
-                    <Link
-                      href={`/products/${p._id}`}
-                      title="View Details"
-                      className="btn-ghost px-2 py-1.5 text-xs"
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                    </Link>
-                    <Link
-                      href={`/products/edit/${p._id}`}
-                      title="Edit"
-                      className="btn-ghost px-2 py-1.5 text-xs"
-                    >
-                      <Edit className="h-3.5 w-3.5" />
-                    </Link>
-                    {isOwner && (
-                      <button
-                        onClick={() => handleDelete(p._id, p.name)}
-                        disabled={deletingId === p._id}
-                        title="Delete"
-                        className="btn-destructive px-2 py-1.5 text-xs"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
-                </td>
+                  </td>
                 </motion.tr>
               );
             })}

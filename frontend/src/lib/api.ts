@@ -13,6 +13,7 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}): Pro
   }
 
   const response = await fetch(`${BASE}${url}`, {
+    cache: 'no-store',
     ...options,
     headers,
     credentials: 'include', // always send httpOnly cookies
@@ -27,6 +28,7 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}): Pro
     if (refresh.ok) {
       // Retry original request
       const retryResp = await fetch(`${BASE}${url}`, {
+        cache: 'no-store',
         ...options,
         headers,
         credentials: 'include',

@@ -16,7 +16,8 @@ export default function ProductCard({ product }: { product: any }) {
   const [cartAdded, setCartAdded] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
-  const isOwner = session?.user && (session.user as any).id === product.createdBy;
+  const productOwnerId = typeof product.createdBy === 'object' ? product.createdBy?._id : product.createdBy;
+  const isOwner = session?.user && (session.user as any).id === productOwnerId;
 
   const handleDelete = async () => {
     if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
@@ -98,22 +99,24 @@ export default function ProductCard({ product }: { product: any }) {
             >
               <Eye className="h-4 w-4" />
             </Link>
-            <Link
-              href={`/products/edit/${product._id}`}
-              title="Edit"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-white border border-white/20 hover:bg-secondary hover:border-white/40 transition-all duration-200 backdrop-blur-sm"
-            >
-              <Edit className="h-4 w-4" />
-            </Link>
             {isOwner && (
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                title="Delete"
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-destructive border border-destructive/30 hover:bg-destructive hover:text-white transition-all duration-200 backdrop-blur-sm disabled:opacity-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              <>
+                <Link
+                  href={`/products/edit/${product._id}`}
+                  title="Edit"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-white border border-white/20 hover:bg-secondary hover:border-white/40 transition-all duration-200 backdrop-blur-sm"
+                >
+                  <Edit className="h-4 w-4" />
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  title="Delete"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-destructive border border-destructive/30 hover:bg-destructive hover:text-white transition-all duration-200 backdrop-blur-sm disabled:opacity-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </>
             )}
           </motion.div>
         </div>
