@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Loader2, Zap, ArrowLeft, CheckCircle } from 'lucide-react';
@@ -20,6 +20,13 @@ type Step = 'login' | 'forgot-email' | 'forgot-otp' | 'forgot-reset' | 'forgot-d
 
 export default function LoginPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.replace('/products');
+    }
+  }, [status, router]);
 
   // Login state
   const [email,    setEmail]    = useState('');
