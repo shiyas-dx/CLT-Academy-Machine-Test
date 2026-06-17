@@ -7,88 +7,109 @@ export default function PageTransition({ children }: { children: React.ReactNode
   const pathname = usePathname();
 
   return (
-    <div className="relative min-h-screen w-full">
-      {/* Cinematic Curtains */}
+    <div className="relative min-h-screen w-full overflow-hidden">
+      {/* Dynamic Speed-Ramp Flash/Sweep Overlay */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={`curtain-${pathname}`}
-          className="fixed inset-0 pointer-events-none z-50 flex flex-col justify-end"
+          key={`sweep-${pathname}`}
+          className="fixed inset-0 pointer-events-none z-50 overflow-hidden"
           initial="initial"
           animate="animate"
           exit="exit"
         >
-          {/* Main Solid Curtain */}
+          {/* Main fast speed ramp sweep layer */}
           <motion.div
-            className="absolute inset-0 bg-[#070412]"
-            variants={{
-              initial: { y: '100%' },
-              animate: { 
-                y: ['100%', '0%', '0%', '-100%'],
-                transition: {
-                  duration: 1.1,
-                  times: [0, 0.4, 0.6, 1],
-                  ease: [0.76, 0, 0.24, 1],
-                }
-              }
+            className="absolute inset-y-0 -left-[100%] w-[300%] bg-gradient-to-r from-transparent via-primary/70 to-transparent"
+            style={{
+              skewX: -25,
             }}
-          />
-          
-          {/* Second Accent Curtain */}
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-t from-primary/25 via-fuchsia-500/10 to-transparent"
             variants={{
-              initial: { y: '100%' },
-              animate: { 
-                y: ['100%', '0%', '0%', '-100%'],
+              initial: { x: '-100%' },
+              animate: {
+                x: '100%',
                 transition: {
-                  duration: 1.1,
-                  times: [0.05, 0.45, 0.55, 0.95],
-                  ease: [0.76, 0, 0.24, 1],
-                }
-              }
+                  duration: 0.65,
+                  ease: [0.85, 0, 0.15, 1], // cinematic speed ramp curve
+                },
+              },
             }}
           />
 
-          {/* Glowing Line Separator */}
+          {/* Second brighter, narrower streak for highlights */}
           <motion.div
-            className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 via-primary to-fuchsia-500 shadow-[0_0_20px_rgba(124,58,237,0.8)]"
+            className="absolute inset-y-0 -left-[100%] w-[250%] bg-gradient-to-r from-transparent via-cyan-400/80 through-fuchsia-500/80 to-transparent shadow-[0_0_80px_rgba(6,182,212,0.5)]"
+            style={{
+              skewX: -25,
+            }}
             variants={{
-              initial: { y: '100vh' },
+              initial: { x: '-110%' },
               animate: {
-                y: ['100vh', '0vh', '0vh', '-100vh'],
+                x: '110%',
                 transition: {
-                  duration: 1.1,
-                  times: [0, 0.4, 0.6, 1],
-                  ease: [0.76, 0, 0.24, 1],
-                }
-              }
+                  duration: 0.65,
+                  delay: 0.015,
+                  ease: [0.85, 0, 0.15, 1],
+                },
+              },
+            }}
+          />
+          
+          {/* Ambient radial lighting flash */}
+          <motion.div
+            className="absolute inset-0 bg-primary/5 mix-blend-screen"
+            variants={{
+              initial: { opacity: 0 },
+              animate: {
+                opacity: [0, 1, 1, 0],
+                transition: {
+                  duration: 0.65,
+                  times: [0, 0.35, 0.55, 1],
+                  ease: [0.85, 0, 0.15, 1],
+                },
+              },
             }}
           />
         </motion.div>
       </AnimatePresence>
 
-      {/* Main Page Content */}
-      <motion.div
-        key={`content-${pathname}`}
-        initial="initial"
-        animate="animate"
-        variants={{
-          initial: { opacity: 0, scale: 0.97, y: 12, filter: 'blur(8px)' },
-          animate: { 
-            opacity: 1, 
-            scale: 1, 
-            y: 0, 
-            filter: 'blur(0px)',
-            transition: { 
-              delay: 0.45, // syncs with when the curtain covers the page
-              duration: 0.55,
-              ease: [0.22, 1, 0.36, 1] 
+      {/* Main Page Content - Zoom, Blur & Fade with popLayout */}
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.div
+          key={`content-${pathname}`}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          variants={{
+            initial: { 
+              opacity: 0, 
+              scale: 0.96, 
+              filter: 'blur(15px)',
+            },
+            animate: { 
+              opacity: 1, 
+              scale: 1, 
+              filter: 'blur(0px)',
+              transition: { 
+                delay: 0.15, // matches the sweep highlight center
+                duration: 0.5,
+                ease: [0.25, 1, 0.5, 1], // smooth deceleration
+              }
+            },
+            exit: {
+              opacity: 0,
+              scale: 0.96,
+              filter: 'blur(15px)',
+              transition: {
+                duration: 0.35,
+                ease: [0.25, 0.1, 0.25, 1],
+              }
             }
-          }
-        }}
-      >
-        {children}
-      </motion.div>
+          }}
+          className="w-full min-h-screen"
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

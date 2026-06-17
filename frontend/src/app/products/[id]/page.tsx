@@ -117,7 +117,8 @@ export default function ProductInspectPage() {
                   >
                     {currentMedia.type === 'image' ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img 
+                      <motion.img 
+                        layoutId={`product-image-${product._id}`}
                         src={currentMedia.url} 
                         alt={product.name} 
                         className="h-full w-full object-contain p-2"
@@ -203,16 +204,22 @@ export default function ProductInspectPage() {
               <Sparkles className="h-4 w-4" /> Catalog Listing
             </div>
             
-            <h1 className="text-3xl font-display font-extrabold tracking-tight text-foreground sm:text-4xl">
+            <motion.h1
+              layoutId={`product-title-${product._id}`}
+              className="text-3xl font-display font-extrabold tracking-tight text-foreground sm:text-4xl"
+            >
               {product.name}
-            </h1>
+            </motion.h1>
 
             {/* Price section */}
             <div className="inline-block">
               <div className="flex items-center gap-2">
-                <span className="text-2xl font-black bg-gradient-to-r from-primary via-violet-400 to-primary bg-clip-text text-transparent">
+                <motion.span
+                  layoutId={`product-price-${product._id}`}
+                  className="text-2xl font-black bg-gradient-to-r from-primary via-violet-400 to-primary bg-clip-text text-transparent inline-block"
+                >
                   ${product.price?.toFixed(2)}
-                </span>
+                </motion.span>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground bg-secondary px-2 py-0.5 rounded border border-border">
                   In Stock
                 </span>

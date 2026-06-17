@@ -64,7 +64,8 @@ export default function ProductCard({ product }: { product: any }) {
       <div className="relative h-48 overflow-hidden rounded-t-2xl bg-secondary/50">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <motion.img
+            layoutId={`product-image-${product._id}`}
             src={imageUrl}
             alt={product.name}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -112,9 +113,12 @@ export default function ProductCard({ product }: { product: any }) {
         </div>
 
         {/* Price badge */}
-        <div className="absolute top-3 right-3 badge-violet font-black text-sm px-3 py-1 shadow-glow-sm">
+        <motion.div
+          layoutId={`product-price-${product._id}`}
+          className="absolute top-3 right-3 badge-violet font-black text-sm px-3 py-1 shadow-glow-sm"
+        >
           ${product.price?.toFixed(2)}
-        </div>
+        </motion.div>
 
         {/* Media count indicator */}
         {product.images?.length > 1 && (
@@ -127,9 +131,12 @@ export default function ProductCard({ product }: { product: any }) {
       {/* ── Info area ───────────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div>
-          <h3 className="font-display font-bold text-sm text-foreground truncate leading-tight">
+          <motion.h3
+            layoutId={`product-title-${product._id}`}
+            className="font-display font-bold text-sm text-foreground truncate leading-tight"
+          >
             {product.name}
-          </h3>
+          </motion.h3>
           {product.description && (
             <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
               {product.description}
