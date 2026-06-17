@@ -186,3 +186,33 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: 'Error resetting password', error: error.message });
   }
 };
+
+// ────────────────────────────────────────────────────────────────────────────
+//  POST /auth/google-login
+// ────────────────────────────────────────────────────────────────────────────
+exports.googleLogin = async (req, res) => {
+  try {
+    const { email, name } = req.body;
+    if (!email)
+      return res.status(400).json({ message: 'Email is required' });
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({ email, name });
+    }
+
+    const accessToken  = signAccess ({ id: user._id });
+    const refreshToken = signRefresh({ id: user._id });
+
+    res
+      .cookie('accessToken',  accessToken,  { ...COOKIE_OPTS, maxAge: 15 * 60 * 1000 })
+      .cookie('refreshToken', refreshToken, { ...COOKIE_OPTS, maxAge: 7 * 24 * 60 * 60 * 1000 })
+      .json({
+        message: 'Google login successful',
+        user:    { id: user._id, name: user.name, email: user.email },
+        accessToken,
+      });
+  } catch (error) {
+    res.status(500).json({ message: 'Google login failed', error: error.message });
+  }
+};
