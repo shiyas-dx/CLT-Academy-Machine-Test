@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Edit, Trash2, ShoppingCart, ArrowUpDown, Eye } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import { useDeleteProduct } from '@/hooks/useProducts';
 import { useAddToCart } from '@/hooks/useCart';
@@ -78,10 +79,12 @@ export default function ProductTable({ products }: { products: any[] }) {
           </thead>
           <tbody className="divide-y divide-border">
             {sorted.map((p, i) => (
-              <tr
+              <motion.tr
                 key={p._id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.35, ease: 'easeOut' }}
                 className="group transition-colors hover:bg-secondary/40"
-                style={{ animationDelay: `${i * 30}ms` }}
               >
                 {/* Product */}
                 <td className="px-5 py-3.5">
@@ -143,7 +146,7 @@ export default function ProductTable({ products }: { products: any[] }) {
                     </button>
                   </div>
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>

@@ -8,6 +8,8 @@ import {
   Image as ImageIcon, Github, Zap, Database,
   Shield, RefreshCw, Play
 } from 'lucide-react';
+import ScrollReveal from '@/components/ScrollReveal';
+
 
 const TECH = [
   'Next.js 14', 'Express.js', 'MongoDB Atlas', 'Cloudinary',
@@ -182,89 +184,100 @@ export default function IntroPage() {
           </div>
 
           {/* ── Tech stack badges ─────────────────────────────────────────── */}
-          <motion.div variants={itemVariants} className="text-center space-y-5">
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Built with
-            </p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {TECH.map((t, i) => (
-                <motion.span
-                  key={t}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: i * 0.04 + 0.5 }}
-                  className="px-3.5 py-1.5 text-xs font-semibold rounded-full bg-secondary/80 border border-border/80 text-foreground hover:border-primary/50 hover:text-primary transition-all duration-200 cursor-default"
-                >
-                  {t}
-                </motion.span>
-              ))}
+          <ScrollReveal direction="up" delay={0.1}>
+            <div className="text-center space-y-5">
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Built with
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {TECH.map((t, i) => (
+                  <motion.span
+                    key={t}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.03 + 0.1 }}
+                    className="px-3.5 py-1.5 text-xs font-semibold rounded-full bg-secondary/80 border border-border/80 text-foreground hover:border-primary/50 hover:text-primary transition-all duration-200 cursor-default"
+                  >
+                    {t}
+                  </motion.span>
+                ))}
+              </div>
             </div>
-          </motion.div>
+          </ScrollReveal>
+
 
           {/* ── Feature grid ─────────────────────────────────────────────── */}
-          <motion.div variants={itemVariants} className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-display font-bold text-foreground">
-                Everything included
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Every phase of the spec, implemented to a production standard.
-              </p>
-            </div>
+          <div className="space-y-6">
+            <ScrollReveal direction="up">
+              <div className="text-center">
+                <h2 className="text-2xl font-display font-bold text-foreground">
+                  Everything included
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Every phase of the spec, implemented to a production standard.
+                </p>
+              </div>
+            </ScrollReveal>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {FEATURES.map(({ icon: Icon, title, desc, color, glow }, i) => (
-                <motion.div
+                <ScrollReveal
                   key={title}
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08 + 0.8, type: 'spring', stiffness: 80 }}
-                  whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                  className="card-glass p-5 space-y-3 cursor-default group"
-                  style={{ '--glow': glow } as React.CSSProperties}
+                  direction="up"
+                  delay={i * 0.05}
+                  duration={0.5}
                 >
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${color} text-white transition-all duration-300 group-hover:scale-110`}
-                    style={{ boxShadow: `0 4px 16px ${glow}` }}
+                  <motion.div
+                    whileHover={{ y: -6, transition: { duration: 0.2 } }}
+                    className="card-glass p-5 h-full space-y-3 cursor-default group"
+                    style={{ '--glow': glow } as React.CSSProperties}
                   >
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="font-bold text-foreground text-sm">{title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
-                </motion.div>
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${color} text-white transition-all duration-300 group-hover:scale-110`}
+                      style={{ boxShadow: `0 4px 16px ${glow}` }}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-bold text-foreground text-sm">{title}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+                  </motion.div>
+                </ScrollReveal>
               ))}
             </div>
-          </motion.div>
+          </div>
+
 
           {/* ── Bottom CTA strip ─────────────────────────────────────────── */}
-          <motion.div
-            variants={itemVariants}
-            className="relative rounded-3xl overflow-hidden border border-violet-500/20 p-8 text-center space-y-5"
-            style={{
-              background: 'linear-gradient(135deg, rgba(109,40,217,0.12) 0%, rgba(67,56,202,0.06) 100%)',
-            }}
-          >
-            <div className="shimmer-line absolute top-0 inset-x-0" />
-            <h2 className="text-2xl font-display font-bold text-foreground">
-              Ready to explore?
-            </h2>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Sign in with Google or a test credential to browse products, upload media, and manage your cart.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Link href="/login" className="btn-primary py-3 px-7">
-                <KeyRound className="h-4 w-4" /> Get Started
-              </Link>
-              <a
-                href="https://github.com/shiyas-dx/CLT-Academy-Machine-Test"
-                target="_blank"
-                rel="noreferrer"
-                className="btn-secondary py-3 px-6"
-              >
-                <Github className="h-4 w-4" /> Source Code
-              </a>
+          <ScrollReveal direction="scale" delay={0.1}>
+            <div
+              className="relative rounded-3xl overflow-hidden border border-violet-500/20 p-8 text-center space-y-5"
+              style={{
+                background: 'linear-gradient(135deg, rgba(109,40,217,0.12) 0%, rgba(67,56,202,0.06) 100%)',
+              }}
+            >
+              <div className="shimmer-line absolute top-0 inset-x-0" />
+              <h2 className="text-2xl font-display font-bold text-foreground">
+                Ready to explore?
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                Sign in with Google or a test credential to browse products, upload media, and manage your cart.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                <Link href="/login" className="btn-primary py-3 px-7">
+                  <KeyRound className="h-4 w-4" /> Get Started
+                </Link>
+                <a
+                  href="https://github.com/shiyas-dx/CLT-Academy-Machine-Test"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-secondary py-3 px-6"
+                >
+                  <Github className="h-4 w-4" /> Source Code
+                </a>
+              </div>
             </div>
-          </motion.div>
+          </ScrollReveal>
+
 
         </motion.div>
       </div>

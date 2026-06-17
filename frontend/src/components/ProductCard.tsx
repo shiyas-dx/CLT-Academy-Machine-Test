@@ -12,6 +12,7 @@ export default function ProductCard({ product }: { product: any }) {
   const deleteProduct = useDeleteProduct();
   const [deleting,  setDeleting]  = useState(false);
   const [cartAdded, setCartAdded] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   const handleDelete = async () => {
     if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
@@ -28,13 +29,36 @@ export default function ProductCard({ product }: { product: any }) {
     } catch {}
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Tilt calculations (-6 to 6 deg)
+    const tiltX = -((y / rect.height) - 0.5) * 12;
+    const tiltY = ((x / rect.width) - 0.5) * 12;
+    
+    setTilt({ x: tiltX, y: tiltY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
+
   const imageUrl = product.images?.[0];
 
   return (
     <motion.div
-      whileHover={{ y: -6 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-      className="card-glass group relative flex flex-col overflow-hidden"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        '--tilt-x': `${tilt.x}deg`,
+        '--tilt-y': `${tilt.y}deg`,
+      } as React.CSSProperties}
+      whileHover={{ scale: 1.015 }}
+      transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+      className="card-glass tilt-card group relative flex flex-col overflow-hidden"
     >
       {/* ── Image area ──────────────────────────────────────────────── */}
       <div className="relative h-48 overflow-hidden rounded-t-2xl bg-secondary/50">
