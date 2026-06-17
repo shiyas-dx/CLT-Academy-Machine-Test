@@ -34,7 +34,11 @@ exports.getProducts = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
     try {
-        const product = await Product.create(req.body);
+        const productData = {
+            ...req.body,
+            userId: req.user.id
+        };
+        const product = await Product.create(productData);
         res.status(201).json(product);
     } catch (error) {
         res.status(400).json({ message: 'Failed to create product', error: error.message });

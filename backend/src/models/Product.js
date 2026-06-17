@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema(
   {
-    title: {
+    name: {
       type: String,
-      required: [true, 'Product title is required'],
+      required: [true, 'Product name is required'],
       trim: true,
     },
     description: {
@@ -16,7 +16,11 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Product price is required'],
       min: [0, 'Price cannot be less than 0'],
     },
-    mediaUrls: {
+    images: {
+      type: [String],
+      default: [],
+    },
+    videos: {
       type: [String],
       default: [],
     },
