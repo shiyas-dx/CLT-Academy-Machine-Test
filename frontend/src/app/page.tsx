@@ -81,6 +81,11 @@ export default function IntroPage() {
       <div className="orb orb-2 w-[500px] h-[500px] bottom-[-100px] right-[-100px]" />
       <div className="orb orb-3 w-[400px] h-[400px] top-[40%] left-[50%]" />
 
+      {/* ── 3D perspective grid layer ── */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] overflow-hidden -z-10">
+        <div className="bg-grid-3d absolute inset-0" />
+      </div>
+
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
 
         <motion.div
@@ -103,9 +108,9 @@ export default function IntroPage() {
               variants={itemVariants}
               className="text-5xl font-display font-black tracking-tight sm:text-7xl leading-[1.05]"
             >
-              <span className="text-foreground">Build.</span>{' '}
-              <span className="text-gradient">Ship.</span>{' '}
-              <span className="text-foreground">Repeat.</span>
+              <span className="text-foreground">Build.{' '}</span>
+              <span className="text-gradient">Ship.</span>
+              <span className="text-foreground">{' '}Repeat.</span>
             </motion.h1>
 
             <motion.p

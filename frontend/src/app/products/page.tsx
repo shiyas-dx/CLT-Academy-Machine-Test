@@ -35,6 +35,11 @@ export default function ProductsPage() {
   return (
     <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 
+      {/* Subtle 3D grid behind the header */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[180px] overflow-hidden -z-10 opacity-60">
+        <div className="bg-grid-3d absolute inset-0" />
+      </div>
+
       {/* Subtle page-level glow */}
       <div className="pointer-events-none absolute -top-40 left-1/3 w-96 h-96 rounded-full bg-primary/8 blur-3xl -z-10" />
 
@@ -47,7 +52,7 @@ export default function ProductsPage() {
       >
         <div>
           <h1 className="text-3xl font-display font-extrabold tracking-tight">
-            <span className="text-gradient">Products</span>
+            Product{' '}<span className="text-gradient">Catalog</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {isLoading

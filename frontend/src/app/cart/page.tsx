@@ -35,6 +35,11 @@ export default function CartPage() {
       {/* Ambient glow */}
       <div className="pointer-events-none absolute -top-20 right-1/3 w-80 h-80 rounded-full bg-primary/6 blur-3xl -z-10" />
 
+      {/* Subtle 3D grid behind header */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[160px] overflow-hidden -z-10 opacity-50">
+        <div className="bg-grid-3d absolute inset-0" />
+      </div>
+
       {/* ── Header ──────────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
@@ -46,7 +51,7 @@ export default function CartPage() {
         </Link>
         <div>
           <h1 className="text-3xl font-display font-extrabold tracking-tight">
-            Shopping <span className="text-gradient">Cart</span>
+            Shopping{' '}<span className="text-gradient-warm">Cart</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             {items.length === 0
