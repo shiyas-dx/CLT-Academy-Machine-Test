@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart, useUpdateCartQuantity, useRemoveFromCart } from '@/hooks/useCart';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowLeft, CreditCard, Package, Loader2, Tag, Sparkles } from 'lucide-react';
+import { pageContainerVariants, wiggleItemVariants } from '@/components/PageTransition';
 
 export default function CartPage() {
   const { data: cartData, isLoading } = useCart();
@@ -30,7 +31,13 @@ export default function CartPage() {
   }
 
   return (
-    <div className="relative mx-auto max-w-5xl px-4 py-6 sm:px-6">
+    <motion.div
+      variants={pageContainerVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="relative mx-auto max-w-5xl px-4 py-6 sm:px-6"
+    >
 
       {/* Ambient glow */}
       <div className="pointer-events-none absolute -top-20 right-1/3 w-80 h-80 rounded-full bg-primary/6 blur-3xl -z-10" />
@@ -42,8 +49,7 @@ export default function CartPage() {
 
       {/* ── Header ──────────────────────────────────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
+        variants={wiggleItemVariants}
         className="mb-8 flex items-center gap-4"
       >
         <Link href="/products" className="btn-ghost h-9 w-9 p-0 rounded-xl border border-border/60">
@@ -61,7 +67,8 @@ export default function CartPage() {
         </div>
       </motion.div>
 
-      {items.length === 0 ? (
+      <motion.div variants={wiggleItemVariants}>
+        {items.length === 0 ? (
         /* ── Empty state ─────────────────────────────────────────── */
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -235,6 +242,7 @@ export default function CartPage() {
           </motion.div>
         </div>
       )}
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

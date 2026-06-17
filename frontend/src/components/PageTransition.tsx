@@ -3,6 +3,56 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 
+// Staggered parent variants for page elements
+export const pageContainerVariants = {
+  initial: {
+    opacity: 0,
+  },
+  animate: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.15,
+    }
+  },
+  exit: {
+    opacity: 0,
+    transition: {
+      staggerChildren: 0.05,
+      staggerDirection: -1 as const,
+    }
+  }
+};
+
+// Physics-based wiggle and drop animation for individual components
+export const wiggleItemVariants = {
+  initial: {
+    opacity: 0,
+    y: '-100vh',
+    rotate: -4,
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    rotate: 0,
+    transition: {
+      y: { type: 'spring', stiffness: 90, damping: 14, mass: 0.8 },
+      opacity: { duration: 0.35 },
+      rotate: { type: 'spring', stiffness: 100, damping: 12 },
+    }
+  },
+  exit: {
+    opacity: 0,
+    y: '100vh',
+    rotate: 4,
+    transition: {
+      y: { type: 'spring', stiffness: 80, damping: 15 },
+      opacity: { duration: 0.25 },
+      rotate: { type: 'spring', stiffness: 90, damping: 10 },
+    }
+  }
+};
+
 export default function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -72,7 +122,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
         </motion.div>
       </AnimatePresence>
 
-      {/* Main Page Content - Zoom, Blur & Fade with popLayout */}
+      {/* Main Page Content - Physical Wiggle, Drop & Bounce Transition */}
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={`content-${pathname}`}
@@ -82,26 +132,27 @@ export default function PageTransition({ children }: { children: React.ReactNode
           variants={{
             initial: { 
               opacity: 0, 
-              scale: 0.96, 
-              filter: 'blur(15px)',
+              y: '-100vh',
+              rotate: -3.5,
             },
             animate: { 
               opacity: 1, 
-              scale: 1, 
-              filter: 'blur(0px)',
+              y: 0, 
+              rotate: 0,
               transition: { 
-                delay: 0.15, // matches the sweep highlight center
-                duration: 0.5,
-                ease: [0.25, 1, 0.5, 1], // smooth deceleration
+                y: { type: 'spring', stiffness: 80, damping: 13, mass: 0.95 },
+                opacity: { duration: 0.4 },
+                rotate: { type: 'spring', stiffness: 95, damping: 11 },
               }
             },
             exit: {
               opacity: 0,
-              scale: 0.96,
-              filter: 'blur(15px)',
+              y: '100vh',
+              rotate: 3.5,
               transition: {
-                duration: 0.35,
-                ease: [0.25, 0.1, 0.25, 1],
+                y: { type: 'spring', stiffness: 75, damping: 14 },
+                opacity: { duration: 0.28 },
+                rotate: { type: 'spring', stiffness: 85, damping: 9 },
               }
             }
           }}

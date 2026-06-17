@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGetProductById } from '@/hooks/useProducts';
 import { useAddToCart } from '@/hooks/useCart';
+import { pageContainerVariants, wiggleItemVariants } from '@/components/PageTransition';
 import { 
   ArrowLeft, 
   ChevronLeft, 
@@ -84,20 +85,26 @@ export default function ProductInspectPage() {
   const currentMedia = mediaItems[currentMediaIndex];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <motion.div
+      variants={pageContainerVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8"
+    >
       {/* Back link */}
-      <div className="mb-6">
+      <motion.div variants={wiggleItemVariants} className="mb-6">
         <Link 
           href="/products" 
           className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Catalog
         </Link>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
         {/* Left Column: Media Slider */}
-        <div className="lg:col-span-7 space-y-4">
+        <motion.div variants={wiggleItemVariants} className="lg:col-span-7 space-y-4">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border/60 bg-secondary/30 card-glass flex items-center justify-center">
             {mediaItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-muted-foreground/30 p-8">
@@ -195,10 +202,10 @@ export default function ProductInspectPage() {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Right Column: Info details */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
+        <motion.div variants={wiggleItemVariants} className="lg:col-span-5 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
             <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
               <Sparkles className="h-4 w-4" /> Catalog Listing
@@ -276,8 +283,8 @@ export default function ProductInspectPage() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

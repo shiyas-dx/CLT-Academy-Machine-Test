@@ -7,6 +7,7 @@ import { Plus, LayoutGrid, List, Search, Package, Filter } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
 import ProductCard from '@/components/ProductCard';
 import ProductTable from '@/components/ProductTable';
+import { pageContainerVariants, wiggleItemVariants } from '@/components/PageTransition';
 
 const CardSkeleton = () => (
   <div className="card-glass overflow-hidden">
@@ -33,7 +34,13 @@ export default function ProductsPage() {
   }, [products, search]);
 
   return (
-    <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <motion.div
+      variants={pageContainerVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8"
+    >
 
       {/* Subtle 3D grid behind the header */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[180px] overflow-hidden -z-10 opacity-60">
@@ -45,9 +52,7 @@ export default function ProductsPage() {
 
       {/* ── Page Header ──────────────────────────────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        variants={wiggleItemVariants}
         className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
@@ -107,7 +112,8 @@ export default function ProductsPage() {
       </motion.div>
 
       {/* ── Content ──────────────────────────────────────────────────── */}
-      <AnimatePresence mode="wait">
+      <motion.div variants={wiggleItemVariants}>
+        <AnimatePresence mode="wait">
         {isLoading ? (
           <motion.div
             key="skel"
@@ -176,6 +182,7 @@ export default function ProductsPage() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

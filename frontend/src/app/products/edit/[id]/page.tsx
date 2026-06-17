@@ -1,5 +1,7 @@
 "use client";
 
+import { pageContainerVariants, wiggleItemVariants } from "@/components/PageTransition";
+import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
@@ -126,8 +128,14 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6 lg:px-8 bg-background">
-      <div className="mb-8 flex items-center justify-between">
+    <motion.div
+      variants={pageContainerVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6 lg:px-8 bg-background"
+    >
+      <motion.div variants={wiggleItemVariants} className="mb-8 flex items-center justify-between">
         <Link
           href="/products"
           className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -139,9 +147,9 @@ export default function EditProductPage() {
           <Sparkles className="h-4 w-4 text-primary" />
           Edit Listing
         </div>
-      </div>
+      </motion.div>
 
-      <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+      <motion.div variants={wiggleItemVariants} className="rounded-2xl border border-border bg-card p-8 shadow-sm">
         <h1 className="text-xl font-bold tracking-tight text-foreground">Edit Product</h1>
         <p className="text-xs text-muted-foreground mt-1">
           Modify the catalog details. Update form inputs and save changes.
@@ -281,7 +289,7 @@ export default function EditProductPage() {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

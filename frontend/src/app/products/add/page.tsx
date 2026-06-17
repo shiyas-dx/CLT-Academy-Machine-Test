@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { useCreateProduct } from '@/hooks/useProducts';
 import { fetchWithAuth } from '@/lib/api';
+import { pageContainerVariants, wiggleItemVariants } from '@/components/PageTransition';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowLeft, Upload, Loader2, X, Image as ImageIcon, Film, Zap } from 'lucide-react';
@@ -81,10 +82,16 @@ export default function AddProductPage() {
   const isBusy = isUploading || createProduct.isPending;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+    <motion.div
+      variants={pageContainerVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="mx-auto max-w-2xl px-4 py-8 sm:px-6"
+    >
 
       {/* Header */}
-      <div className="mb-8 flex items-center gap-4">
+      <motion.div variants={wiggleItemVariants} className="mb-8 flex items-center gap-4">
         <Link href="/products" className="btn-ghost px-2 py-2">
           <ArrowLeft className="h-4 w-4" />
         </Link>
@@ -92,9 +99,9 @@ export default function AddProductPage() {
           <h1 className="page-title">Add Product</h1>
           <p className="page-subtitle">Fill in the details for your new product listing</p>
         </div>
-      </div>
+      </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+      <motion.div variants={wiggleItemVariants}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
           {/* Card: Basic info */}
@@ -204,6 +211,6 @@ export default function AddProductPage() {
           </div>
         </form>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
