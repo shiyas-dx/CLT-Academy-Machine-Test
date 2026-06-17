@@ -25,7 +25,7 @@ exports.getUploadSignature = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
     try {
-        const products = await Product.find({});
+        const products = await Product.find({ userId: req.user.id });
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch products', error: error.message });
@@ -35,7 +35,7 @@ exports.getProducts = async (req, res) => {
 exports.getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-        if (!product) {
+        if (!product || product.userId.toString() !== req.user.id) {
             return res.status(404).json({ message: 'Product not found' });
         }
         res.json(product);
@@ -60,7 +60,12 @@ exports.createProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
     try {
-        const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        let product = await Product.findById(req.params.id);
+        if (!product || product.userId.toString() !== req.user.id) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json(product);
     } catch (error) {
         res.status(400).json({ message: 'Failed to update product', error: error.message });
@@ -69,6 +74,11 @@ exports.updateProduct = async (req, res) => {
 
 exports.deleteProduct = async (req, res) => {
     try {
+        const product = await Product.findById(req.params.id);
+        if (!product || product.userId.toString() !== req.user.id) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
         await Product.findByIdAndDelete(req.params.id);
         res.json({ message: 'Product removed' });
     } catch (error) {

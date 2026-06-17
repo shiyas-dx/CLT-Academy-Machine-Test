@@ -10,16 +10,18 @@ const {
 } = require('../controllers/productController');
 const { protect } = require('../middleware/auth');
 
-// Public route to view products, protected route to create
-router.route('/').get(getProducts).post(protect, createProduct);
+// Protect all routes
+router.use(protect);
+
+router.route('/').get(getProducts).post(createProduct);
 
 // Media upload signature route
-router.get('/upload-signature', protect, getUploadSignature);
+router.get('/upload-signature', getUploadSignature);
 
 // Parameter routes
 router.route('/:id')
     .get(getProductById)
-    .put(protect, updateProduct)
-    .delete(protect, deleteProduct);
+    .put(updateProduct)
+    .delete(deleteProduct);
 
 module.exports = router;
