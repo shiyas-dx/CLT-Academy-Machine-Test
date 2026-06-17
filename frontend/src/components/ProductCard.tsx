@@ -6,13 +6,17 @@ import { ShoppingCart, Edit, Trash2, Eye, Tag, Check } from 'lucide-react';
 import { useAddToCart } from '@/hooks/useCart';
 import { useDeleteProduct } from '@/hooks/useProducts';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 
 export default function ProductCard({ product }: { product: any }) {
+  const { data: session } = useSession();
   const addToCart     = useAddToCart();
   const deleteProduct = useDeleteProduct();
   const [deleting,  setDeleting]  = useState(false);
   const [cartAdded, setCartAdded] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const isOwner = session?.user && (session.user as any).id === product.createdBy;
 
   const handleDelete = async () => {
     if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
@@ -101,14 +105,16 @@ export default function ProductCard({ product }: { product: any }) {
             >
               <Edit className="h-4 w-4" />
             </Link>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              title="Delete"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-destructive border border-destructive/30 hover:bg-destructive hover:text-white transition-all duration-200 backdrop-blur-sm disabled:opacity-50"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            {isOwner && (
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                title="Delete"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-destructive border border-destructive/30 hover:bg-destructive hover:text-white transition-all duration-200 backdrop-blur-sm disabled:opacity-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
           </motion.div>
         </div>
 

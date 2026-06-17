@@ -25,7 +25,7 @@ exports.getUploadSignature = async (req, res) => {
 
 exports.getProducts = async (req, res) => {
     try {
-        const products = await Product.find({ userId: req.user.id });
+        const products = await Product.find({});
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch products', error: error.message });
@@ -35,7 +35,7 @@ exports.getProducts = async (req, res) => {
 exports.getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-        if (!product || product.userId.toString() !== req.user.id) {
+        if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
         res.json(product);
@@ -49,7 +49,7 @@ exports.createProduct = async (req, res) => {
     try {
         const productData = {
             ...req.body,
-            userId: req.user.id
+            createdBy: req.user.id
         };
         const product = await Product.create(productData);
         res.status(201).json(product);
@@ -61,8 +61,11 @@ exports.createProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
     try {
         let product = await Product.findById(req.params.id);
-        if (!product || product.userId.toString() !== req.user.id) {
+        if (!product) {
             return res.status(404).json({ message: 'Product not found' });
+        }
+        if (product.createdBy.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Forbidden: You do not own this product' });
         }
 
         product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -75,8 +78,11 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-        if (!product || product.userId.toString() !== req.user.id) {
+        if (!product) {
             return res.status(404).json({ message: 'Product not found' });
+        }
+        if (product.createdBy.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Forbidden: You do not own this product' });
         }
 
         await Product.findByIdAndDelete(req.params.id);

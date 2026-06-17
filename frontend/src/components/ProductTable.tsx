@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Edit, Trash2, ShoppingCart, ArrowUpDown, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 
 import { useDeleteProduct } from '@/hooks/useProducts';
 import { useAddToCart } from '@/hooks/useCart';
@@ -12,6 +13,7 @@ type SortKey = 'name' | 'price';
 type SortDir = 'asc' | 'desc';
 
 export default function ProductTable({ products }: { products: any[] }) {
+  const { data: session } = useSession();
   const deleteProduct = useDeleteProduct();
   const addToCart     = useAddToCart();
   const [sortKey, setSortKey] = useState<SortKey>('name');
@@ -78,14 +80,16 @@ export default function ProductTable({ products }: { products: any[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {sorted.map((p, i) => (
-              <motion.tr
-                key={p._id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.35, ease: 'easeOut' }}
-                className="group transition-colors hover:bg-secondary/40"
-              >
+            {sorted.map((p, i) => {
+              const isOwner = session?.user && (session.user as any).id === p.createdBy;
+              return (
+                <motion.tr
+                  key={p._id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(i * 0.03, 0.3), duration: 0.35, ease: 'easeOut' }}
+                  className="group transition-colors hover:bg-secondary/40"
+                >
                 {/* Product */}
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-3">
@@ -136,18 +140,21 @@ export default function ProductTable({ products }: { products: any[] }) {
                     >
                       <Edit className="h-3.5 w-3.5" />
                     </Link>
-                    <button
-                      onClick={() => handleDelete(p._id, p.name)}
-                      disabled={deletingId === p._id}
-                      title="Delete"
-                      className="btn-destructive px-2 py-1.5 text-xs"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    {isOwner && (
+                      <button
+                        onClick={() => handleDelete(p._id, p.name)}
+                        disabled={deletingId === p._id}
+                        title="Delete"
+                        className="btn-destructive px-2 py-1.5 text-xs"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                 </td>
-              </motion.tr>
-            ))}
+                </motion.tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
