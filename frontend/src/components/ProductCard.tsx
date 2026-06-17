@@ -2,116 +2,144 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Edit, Trash2, Eye, Tag } from 'lucide-react';
+import { ShoppingCart, Edit, Trash2, Eye, Tag, Check } from 'lucide-react';
 import { useAddToCart } from '@/hooks/useCart';
 import { useDeleteProduct } from '@/hooks/useProducts';
 import { useState } from 'react';
 
 export default function ProductCard({ product }: { product: any }) {
-  const addToCart    = useAddToCart();
+  const addToCart     = useAddToCart();
   const deleteProduct = useDeleteProduct();
-  const [deleting, setDeleting] = useState(false);
+  const [deleting,  setDeleting]  = useState(false);
+  const [cartAdded, setCartAdded] = useState(false);
 
   const handleDelete = async () => {
     if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
     setDeleting(true);
+    try { await deleteProduct.mutateAsync(product._id); }
+    finally { setDeleting(false); }
+  };
+
+  const handleAddToCart = async () => {
     try {
-      await deleteProduct.mutateAsync(product._id);
-    } finally {
-      setDeleting(false);
-    }
+      await addToCart.mutateAsync(product._id);
+      setCartAdded(true);
+      setTimeout(() => setCartAdded(false), 1800);
+    } catch {}
   };
 
   const imageUrl = product.images?.[0];
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      className="card-glass group relative overflow-hidden flex flex-col"
+      whileHover={{ y: -6 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+      className="card-glass group relative flex flex-col overflow-hidden"
     >
-      {/* Image area */}
-      <div className="relative h-48 overflow-hidden rounded-t-2xl bg-secondary/60">
+      {/* ── Image area ──────────────────────────────────────────────── */}
+      <div className="relative h-48 overflow-hidden rounded-t-2xl bg-secondary/50">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageUrl}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
-            <Tag className="h-12 w-12" />
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground/30">
+            <Tag className="h-10 w-10" />
+            <span className="text-[11px] uppercase tracking-widest font-semibold">No Image</span>
           </div>
         )}
 
-        {/* Hover overlay with action buttons */}
-        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[2px]">
-          <Link
-            href={`/products/${product._id}`}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/80 text-foreground hover:bg-primary/20 hover:text-primary transition-all duration-200 border border-border/50"
-            title="View product details"
+        {/* Gradient overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Hover action buttons */}
+        <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <motion.div
+            initial={false}
+            animate={{ scale: [0.8, 1], opacity: [0, 1] }}
+            className="flex items-center gap-2"
           >
-            <Eye className="h-4 w-4" />
-          </Link>
-          <Link
-            href={`/products/edit/${product._id}`}
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/80 text-foreground hover:bg-primary/20 hover:text-primary transition-all duration-200 border border-border/50"
-            title="Edit product"
-          >
-            <Edit className="h-4 w-4" />
-          </Link>
-          <button
-            onClick={() => addToCart.mutate(product._id)}
-            disabled={addToCart.isPending}
-            title="Add to cart"
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/80 text-white hover:bg-primary transition-all duration-200 shadow-glow-sm"
-          >
-            <ShoppingCart className="h-4 w-4" />
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            title="Delete product"
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-destructive/20 text-destructive hover:bg-destructive hover:text-white transition-all duration-200 border border-destructive/30"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+            <Link
+              href={`/products/${product._id}`}
+              title="View Details"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-white border border-white/20 hover:bg-primary hover:border-primary transition-all duration-200 backdrop-blur-sm"
+            >
+              <Eye className="h-4 w-4" />
+            </Link>
+            <Link
+              href={`/products/edit/${product._id}`}
+              title="Edit"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-white border border-white/20 hover:bg-secondary hover:border-white/40 transition-all duration-200 backdrop-blur-sm"
+            >
+              <Edit className="h-4 w-4" />
+            </Link>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              title="Delete"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/60 text-destructive border border-destructive/30 hover:bg-destructive hover:text-white transition-all duration-200 backdrop-blur-sm disabled:opacity-50"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </motion.div>
         </div>
 
         {/* Price badge */}
-        <div className="absolute top-3 right-3 badge-violet font-bold text-sm px-3 py-1 shadow-glow-sm">
+        <div className="absolute top-3 right-3 badge-violet font-black text-sm px-3 py-1 shadow-glow-sm">
           ${product.price?.toFixed(2)}
         </div>
+
+        {/* Media count indicator */}
+        {product.images?.length > 1 && (
+          <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
+            <span>+{product.images.length - 1} more</span>
+          </div>
+        )}
       </div>
 
-      {/* Info area */}
-      <div className="flex flex-1 flex-col gap-1.5 p-4">
-        <h3 className="font-display font-semibold text-foreground truncate leading-tight">
-          {product.name}
-        </h3>
-        {product.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-            {product.description}
-          </p>
-        )}
+      {/* ── Info area ───────────────────────────────────────────────── */}
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <div>
+          <h3 className="font-display font-bold text-sm text-foreground truncate leading-tight">
+            {product.name}
+          </h3>
+          {product.description && (
+            <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+              {product.description}
+            </p>
+          )}
+        </div>
 
-        {/* Footer actions */}
+        {/* Footer action */}
         <div className="mt-auto pt-3 flex items-center gap-2">
           <button
-            onClick={() => addToCart.mutate(product._id)}
-            disabled={addToCart.isPending}
-            className="btn-primary flex-1 py-2 text-xs"
+            onClick={handleAddToCart}
+            disabled={addToCart.isPending || cartAdded}
+            className={`btn-primary flex-1 py-2 text-xs transition-all duration-300 ${
+              cartAdded ? 'bg-emerald-600 hover:bg-emerald-600' : ''
+            }`}
           >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            {addToCart.isPending ? 'Adding…' : 'Add to Cart'}
+            {cartAdded ? (
+              <>
+                <Check className="h-3.5 w-3.5" />
+                Added!
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="h-3.5 w-3.5" />
+                {addToCart.isPending ? 'Adding…' : 'Add to Cart'}
+              </>
+            )}
           </button>
           <Link
-            href={`/products/edit/${product._id}`}
-            className="btn-secondary px-3 py-2 text-xs"
-            title="Edit"
+            href={`/products/${product._id}`}
+            className="btn-ghost border border-border/60 px-3 py-2 text-xs rounded-xl"
+            title="View"
           >
-            <Edit className="h-3.5 w-3.5" />
+            <Eye className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>
