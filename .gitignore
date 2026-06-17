@@ -1,0 +1,47 @@
+# Dependency directories
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Local configuration files and environment secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+backend/.env.local
+frontend/.env
+frontend/.env.local
+
+# Next.js build output
+.next/
+frontend/.next/
+
+# Other build and dist directories
+dist/
+build/
+backend/dist/
+frontend/build/
+tsconfig.tsbuildinfo
+frontend/tsconfig.tsbuildinfo
+
+# OS metadata files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor / IDE settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
