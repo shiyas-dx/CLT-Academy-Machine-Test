@@ -21,8 +21,8 @@ const COOKIE_OPTS = {
 
 // ── Brevo SMTP transporter ────────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
+  host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
+  port: parseInt(process.env.BREVO_SMTP_PORT || '587', 10),
   auth: {
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_PASS,
