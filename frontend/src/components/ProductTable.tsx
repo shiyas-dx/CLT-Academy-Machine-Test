@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Edit, Trash2, ShoppingCart, ArrowUpDown } from 'lucide-react';
+import { Edit, Trash2, ShoppingCart, ArrowUpDown, Eye } from 'lucide-react';
+
 import { useDeleteProduct } from '@/hooks/useProducts';
 import { useAddToCart } from '@/hooks/useCart';
 
@@ -118,6 +119,13 @@ export default function ProductTable({ products }: { products: any[] }) {
                     >
                       <ShoppingCart className="h-3.5 w-3.5" />
                     </button>
+                    <Link
+                      href={`/products/${p._id}`}
+                      title="View Details"
+                      className="btn-ghost px-2 py-1.5 text-xs"
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                    </Link>
                     <Link
                       href={`/products/edit/${p._id}`}
                       title="Edit"

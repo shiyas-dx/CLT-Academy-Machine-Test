@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { 
     getProducts, 
+    getProductById,
     createProduct, 
     updateProduct, 
     deleteProduct, 
@@ -16,6 +17,9 @@ router.route('/').get(getProducts).post(protect, createProduct);
 router.get('/upload-signature', protect, getUploadSignature);
 
 // Parameter routes
-router.route('/:id').put(protect, updateProduct).delete(protect, deleteProduct);
+router.route('/:id')
+    .get(getProductById)
+    .put(protect, updateProduct)
+    .delete(protect, deleteProduct);
 
 module.exports = router;

@@ -48,6 +48,13 @@ export default function ProductCard({ product }: { product: any }) {
         {/* Hover overlay with action buttons */}
         <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[2px]">
           <Link
+            href={`/products/${product._id}`}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/80 text-foreground hover:bg-primary/20 hover:text-primary transition-all duration-200 border border-border/50"
+            title="View product details"
+          >
+            <Eye className="h-4 w-4" />
+          </Link>
+          <Link
             href={`/products/edit/${product._id}`}
             className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/80 text-foreground hover:bg-primary/20 hover:text-primary transition-all duration-200 border border-border/50"
             title="Edit product"
