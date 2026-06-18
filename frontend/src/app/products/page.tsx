@@ -3,11 +3,12 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, LayoutGrid, List, Search, Package, Filter } from 'lucide-react';
+import { Plus, LayoutGrid, List, Search, Package, Filter, X } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
 import ProductCard from '@/components/ProductCard';
 import ProductTable from '@/components/ProductTable';
 import { pageContainerVariants, wiggleItemVariants } from '@/components/PageTransition';
+import { useSession } from 'next-auth/react';
 
 const CardSkeleton = () => (
   <div className="card-glass overflow-hidden">
@@ -25,13 +26,71 @@ export default function ProductsPage() {
   const [view,   setView]   = useState<'grid' | 'table'>('grid');
   const [search, setSearch] = useState('');
 
-  const filtered = useMemo(() => {
+  const { data: session } = useSession();
+  const currentUserId = (session?.user as any)?.id;
+
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [ownerFilter, setOwnerFilter] = useState<'all' | 'mine'>('all');
+  const [sortBy, setSortBy] = useState<string>('name-asc');
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Filtered list for Table view (keeps columns sorting independent)
+  const filteredOnly = useMemo(() => {
     if (!products) return [];
-    const q = search.toLowerCase();
-    return products.filter(p =>
-      p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q)
-    );
-  }, [products, search]);
+    let result = [...products];
+
+    // 1. Text Search
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(p =>
+        p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q)
+      );
+    }
+
+    // 2. Min Price Filter
+    if (minPrice) {
+      const min = parseFloat(minPrice);
+      if (!isNaN(min)) {
+        result = result.filter(p => p.price >= min);
+      }
+    }
+
+    // 3. Max Price Filter
+    if (maxPrice) {
+      const max = parseFloat(maxPrice);
+      if (!isNaN(max)) {
+        result = result.filter(p => p.price <= max);
+      }
+    }
+
+    // 4. Owner Filter
+    if (ownerFilter === 'mine' && currentUserId) {
+      result = result.filter(p => {
+        const productOwnerId = typeof p.createdBy === 'object' ? p.createdBy?._id : p.createdBy;
+        return productOwnerId === currentUserId;
+      });
+    }
+
+    return result;
+  }, [products, search, minPrice, maxPrice, ownerFilter, currentUserId]);
+
+  // Fully filtered & sorted list for Grid view
+  const filteredAndSorted = useMemo(() => {
+    let result = [...filteredOnly];
+
+    // Sorting
+    result.sort((a, b) => {
+      if (sortBy === 'name-asc') return (a.name || '').localeCompare(b.name || '');
+      if (sortBy === 'name-desc') return (b.name || '').localeCompare(a.name || '');
+      if (sortBy === 'price-asc') return (a.price || 0) - (b.price || 0);
+      if (sortBy === 'price-desc') return (b.price || 0) - (a.price || 0);
+      if (sortBy === 'newest') return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      return 0;
+    });
+
+    return result;
+  }, [filteredOnly, sortBy]);
 
   return (
     <motion.div
@@ -62,7 +121,7 @@ export default function ProductsPage() {
           <p className="text-sm text-muted-foreground mt-1">
             {isLoading
               ? 'Loading your catalog…'
-              : `${filtered.length} item${filtered.length !== 1 ? 's' : ''} in catalog`}
+              : `${filteredAndSorted.length} item${filteredAndSorted.length !== 1 ? 's' : ''} in catalog`}
           </p>
         </div>
 
@@ -97,9 +156,15 @@ export default function ProductsPage() {
             ))}
           </div>
 
-          {/* Filter stub badge */}
-          <button className="btn-ghost gap-2 text-xs h-9 px-3 border border-border/60">
-            <Filter className="h-3.5 w-3.5" /> Filter
+          {/* Filters Toggle */}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`btn-ghost gap-2 text-xs h-9 px-3 border transition-all duration-200 ${
+              showFilters ? 'border-primary bg-primary/10 text-primary' : 'border-border/60 text-muted-foreground'
+            }`}
+          >
+            {showFilters ? <X className="h-3.5 w-3.5" /> : <Filter className="h-3.5 w-3.5" />}
+            Filters
           </button>
 
           {/* Add */}
@@ -110,6 +175,74 @@ export default function ProductsPage() {
           </Link>
         </div>
       </motion.div>
+
+      {/* ── Slide-Down Filter Panel ─────────────────────────────────── */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className="overflow-hidden mb-6"
+          >
+            <div className="card-glass p-5 grid grid-cols-1 gap-4 sm:grid-cols-4 items-end">
+              {/* Min Price */}
+              <div>
+                <label className="label text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1 block">Min Price ($)</label>
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={minPrice}
+                  onChange={e => setMinPrice(e.target.value)}
+                  className="input-field py-2 px-3 text-xs"
+                />
+              </div>
+
+              {/* Max Price */}
+              <div>
+                <label className="label text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1 block">Max Price ($)</label>
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={maxPrice}
+                  onChange={e => setMaxPrice(e.target.value)}
+                  className="input-field py-2 px-3 text-xs"
+                />
+              </div>
+
+              {/* Ownership */}
+              <div>
+                <label className="label text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1 block">Listing Scope</label>
+                <select
+                  value={ownerFilter}
+                  onChange={e => setOwnerFilter(e.target.value as any)}
+                  className="input-field py-2 px-3 text-xs bg-secondary"
+                >
+                  <option value="all">All Products</option>
+                  <option value="mine">My Products Only</option>
+                </select>
+              </div>
+
+              {/* Sort By */}
+              <div>
+                <label className="label text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1 block">Sort By</label>
+                <select
+                  value={sortBy}
+                  onChange={e => setSortBy(e.target.value)}
+                  className="input-field py-2 px-3 text-xs bg-secondary"
+                >
+                  <option value="name-asc">Name: A to Z</option>
+                  <option value="name-desc">Name: Z to A</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="newest">Newest First</option>
+                </select>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Content ──────────────────────────────────────────────────── */}
       <motion.div variants={wiggleItemVariants}>
@@ -125,7 +258,7 @@ export default function ProductsPage() {
             {Array.from({ length: 8 }).map((_, i) => <CardSkeleton key={i} />)}
           </motion.div>
 
-        ) : filtered.length === 0 ? (
+        ) : filteredAndSorted.length === 0 ? (
           <motion.div
             key="empty"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -137,13 +270,13 @@ export default function ProductsPage() {
             </div>
             <div>
               <p className="font-display font-semibold text-foreground">
-                {search ? 'No results found' : 'No products yet'}
+                {search || minPrice || maxPrice || ownerFilter !== 'all' ? 'No results found' : 'No products yet'}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                {search ? 'Try a different keyword' : 'Add your first product to get started'}
+                {search || minPrice || maxPrice || ownerFilter !== 'all' ? 'Try adjusting your search filters' : 'Add your first product to get started'}
               </p>
             </div>
-            {!search && (
+            {!(search || minPrice || maxPrice || ownerFilter !== 'all') && (
               <Link href="/products/add" className="btn-primary">
                 <Plus className="h-4 w-4" /> Add Product
               </Link>
@@ -158,7 +291,7 @@ export default function ProductsPage() {
             exit={{ opacity: 0 }}
             className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           >
-            {filtered.map((p, i) => (
+            {filteredAndSorted.map((p, i) => (
               <motion.div
                 key={p._id}
                 initial={{ opacity: 0, y: 20, scale: 0.97 }}
@@ -178,7 +311,7 @@ export default function ProductsPage() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
           >
-            <ProductTable products={filtered} />
+            <ProductTable products={filteredOnly} />
           </motion.div>
         )}
       </AnimatePresence>

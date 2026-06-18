@@ -143,7 +143,7 @@ export default function CartPage() {
                     <div className="flex items-center rounded-xl border border-border/60 bg-secondary/50 overflow-hidden">
                       <button
                         onClick={() => item.quantity > 1 && updateQty.mutate({ productId: p._id, quantity: item.quantity - 1 })}
-                        disabled={item.quantity <= 1 || updateQty.isPending}
+                        disabled={item.quantity <= 1}
                         className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary disabled:opacity-30 transition-colors"
                       >
                         <Minus className="h-3 w-3" />
@@ -151,7 +151,6 @@ export default function CartPage() {
                       <span className="w-8 text-center text-sm font-bold tabular-nums">{item.quantity}</span>
                       <button
                         onClick={() => updateQty.mutate({ productId: p._id, quantity: item.quantity + 1 })}
-                        disabled={updateQty.isPending}
                         className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                       >
                         <Plus className="h-3 w-3" />
@@ -168,7 +167,6 @@ export default function CartPage() {
                     {/* Remove */}
                     <button
                       onClick={() => removeItem.mutate(p._id)}
-                      disabled={removeItem.isPending}
                       className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all duration-200 opacity-0 group-hover:opacity-100"
                       title="Remove"
                     >

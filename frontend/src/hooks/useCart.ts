@@ -28,7 +28,30 @@ export const useUpdateCartQuantity = () => {
         method: 'PUT', 
         body: JSON.stringify({ quantity }) 
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] })
+    onMutate: async ({ productId, quantity }) => {
+      await queryClient.cancelQueries({ queryKey: ['cart'] });
+      const previousCart = queryClient.getQueryData(['cart']);
+      queryClient.setQueryData(['cart'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items.map((item: any) => 
+            item.product?._id === productId 
+              ? { ...item, quantity } 
+              : item
+          )
+        };
+      });
+      return { previousCart };
+    },
+    onError: (err, variables, context: any) => {
+      if (context?.previousCart) {
+        queryClient.setQueryData(['cart'], context.previousCart);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    }
   });
 };
 
@@ -37,6 +60,25 @@ export const useRemoveFromCart = () => {
   return useMutation({
     mutationFn: (productId: string) => 
       fetchWithAuth(`/cart/${productId}`, { method: 'DELETE' }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] })
+    onMutate: async (productId) => {
+      await queryClient.cancelQueries({ queryKey: ['cart'] });
+      const previousCart = queryClient.getQueryData(['cart']);
+      queryClient.setQueryData(['cart'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          items: old.items.filter((item: any) => item.product?._id !== productId)
+        };
+      });
+      return { previousCart };
+    },
+    onError: (err, productId, context: any) => {
+      if (context?.previousCart) {
+        queryClient.setQueryData(['cart'], context.previousCart);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    }
   });
 };
