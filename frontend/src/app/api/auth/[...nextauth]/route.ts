@@ -17,7 +17,7 @@ const handler = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
         try {
-          const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const apiBase = process.env.BACKEND_INTERNAL_URL || 'http://localhost:5000';
           // 1. Try to login
           const res = await fetch(`${apiBase}/auth/login`, {
             method: 'POST',
@@ -75,7 +75,7 @@ const handler = NextAuth({
       if (user) {
         if (account?.provider === 'google') {
           try {
-            const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const apiBase = process.env.BACKEND_INTERNAL_URL || 'http://localhost:5000';
             const res = await fetch(`${apiBase}/auth/google-login`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
