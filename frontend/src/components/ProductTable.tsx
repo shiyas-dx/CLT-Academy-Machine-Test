@@ -74,6 +74,9 @@ export default function ProductTable({ products }: { products: any[] }) {
               <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Description
               </th>
+              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Uploaded By
+              </th>
               <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Actions
               </th>
@@ -83,6 +86,12 @@ export default function ProductTable({ products }: { products: any[] }) {
             {sorted.map((p, i) => {
               const productOwnerId = typeof p.createdBy === 'object' ? p.createdBy?._id : p.createdBy;
               const isOwner = session?.user && (session.user as any).id === productOwnerId;
+              const uploaderName = typeof p.createdBy === 'object' && p.createdBy?.name
+                ? p.createdBy.name
+                : (typeof p.createdBy === 'object' && p.createdBy?.email
+                   ? p.createdBy.email.split('@')[0]
+                   : 'Unknown Seller');
+
               return (
                 <motion.tr
                   key={p._id}
@@ -114,6 +123,13 @@ export default function ProductTable({ products }: { products: any[] }) {
                   {/* Description */}
                   <td className="px-5 py-3.5 text-muted-foreground text-xs max-w-[250px]">
                     <p className="line-clamp-2">{p.description || '—'}</p>
+                  </td>
+
+                  {/* Uploaded By */}
+                  <td className="px-5 py-3.5 text-muted-foreground text-xs">
+                    <span className="font-medium text-foreground/80 truncate max-w-[150px] block">
+                      {uploaderName} {isOwner && ' (You)'}
+                    </span>
                   </td>
 
                   {/* Actions */}

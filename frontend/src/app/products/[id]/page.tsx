@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useGetProductById } from '@/hooks/useProducts';
+import { useGetProductById, useDeleteProduct } from '@/hooks/useProducts';
 import { useAddToCart } from '@/hooks/useCart';
 import { pageContainerVariants, wiggleItemVariants } from '@/components/PageTransition';
+import { useSession } from 'next-auth/react';
 import { 
   ArrowLeft, 
   ChevronLeft, 
@@ -17,7 +18,10 @@ import {
   Image as ImageIcon, 
   Loader2,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Edit,
+  Trash2,
+  User
 } from 'lucide-react';
 
 export default function ProductInspectPage() {
@@ -27,8 +31,22 @@ export default function ProductInspectPage() {
   
   const { data: product, isLoading, error } = useGetProductById(id);
   const addToCart = useAddToCart();
+  const { data: session } = useSession();
+  const deleteProduct = useDeleteProduct();
   const [quantity, setQuantity] = useState(1);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
+  const handleDelete = async () => {
+    if (!product) return;
+    if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+    try {
+      await deleteProduct.mutateAsync(product._id);
+      router.push('/products');
+      router.refresh();
+    } catch (err) {
+      alert('Failed to delete product.');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -50,6 +68,15 @@ export default function ProductInspectPage() {
       </div>
     );
   }
+
+  const productOwnerId = typeof product.createdBy === 'object' ? product.createdBy?._id : product.createdBy;
+  const isOwner = session?.user && (session.user as any).id === productOwnerId;
+  const uploaderName = typeof product.createdBy === 'object' && product.createdBy?.name
+    ? product.createdBy.name
+    : (typeof product.createdBy === 'object' && product.createdBy?.email
+       ? product.createdBy.email.split('@')[0]
+       : 'Unknown Seller');
+  const uploaderEmail = typeof product.createdBy === 'object' ? product.createdBy?.email : '';
 
   // Combine images and videos into a single media array
   const mediaItems: { url: string; type: 'image' | 'video' }[] = [];
@@ -240,6 +267,20 @@ export default function ProductInspectPage() {
                 {product.description}
               </p>
             </div>
+
+            {/* Seller Info */}
+            <div className="border-t border-border/60 pt-4 flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <User className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Seller / Owner</h4>
+                <p className="text-xs font-semibold text-foreground truncate">
+                  {uploaderName} {uploaderEmail && <span className="text-[10px] font-normal text-muted-foreground">({uploaderEmail})</span>}
+                  {isOwner && <span className="ml-1 text-[10px] text-primary font-bold">(You)</span>}
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-5 pt-6 border-t border-border/60">
@@ -272,6 +313,26 @@ export default function ProductInspectPage() {
               <ShoppingCart className="h-4 w-4" />
               {addToCart.isPending ? 'Adding to Cart...' : `Add ${quantity} to Cart`}
             </button>
+
+            {/* Owner Controls */}
+            {isOwner && (
+              <div className="flex gap-3 pt-1">
+                <Link
+                  href={`/products/edit/${product._id}`}
+                  className="btn-secondary flex-1 py-2.5 text-xs rounded-xl flex items-center justify-center gap-2 border border-border/80 hover:border-primary/50"
+                >
+                  <Edit className="h-3.5 w-3.5" />
+                  Edit Product
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  className="btn-destructive flex-1 py-2.5 text-xs rounded-xl flex items-center justify-center gap-2"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Delete Product
+                </button>
+              </div>
+            )}
 
             {/* Extra assurance */}
             <div className="grid grid-cols-2 gap-3 text-[10px] text-muted-foreground font-medium border-t border-border/40 pt-4">

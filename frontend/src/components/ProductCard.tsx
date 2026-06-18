@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Edit, Trash2, Eye, Tag, Check } from 'lucide-react';
+import { ShoppingCart, Edit, Trash2, Eye, Tag, Check, User } from 'lucide-react';
 import { useAddToCart } from '@/hooks/useCart';
 import { useDeleteProduct } from '@/hooks/useProducts';
 import { useState } from 'react';
@@ -18,6 +18,13 @@ export default function ProductCard({ product }: { product: any }) {
 
   const productOwnerId = typeof product.createdBy === 'object' ? product.createdBy?._id : product.createdBy;
   const isOwner = session?.user && (session.user as any).id === productOwnerId;
+
+  const uploaderName = typeof product.createdBy === 'object' && product.createdBy?.name
+    ? product.createdBy.name
+    : (typeof product.createdBy === 'object' && product.createdBy?.email
+       ? product.createdBy.email.split('@')[0]
+       : 'Unknown Seller');
+
 
   const handleDelete = async () => {
     if (!confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
@@ -151,6 +158,10 @@ export default function ProductCard({ product }: { product: any }) {
               {product.description}
             </p>
           )}
+          <div className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground/85">
+            <User className="h-3 w-3 text-primary/70" />
+            <span className="truncate">Seller: {uploaderName} {isOwner && '(You)'}</span>
+          </div>
         </div>
 
         {/* Footer action */}

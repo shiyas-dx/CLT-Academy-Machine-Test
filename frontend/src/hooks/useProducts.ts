@@ -8,6 +8,7 @@ export interface Product {
   price: number;
   images: string[];
   videos: string[];
+  createdBy?: any;
   createdAt: string;
   updatedAt: string;
 }

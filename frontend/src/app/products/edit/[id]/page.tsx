@@ -8,9 +8,10 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
-import { ArrowLeft, Save, Loader2, Sparkles, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Sparkles, Image as ImageIcon, ShieldAlert } from "lucide-react";
 import { useGetProductById, useUpdateProduct } from "@/hooks/useProducts";
 import { fetchWithAuth } from "@/lib/api";
+import { useSession } from "next-auth/react";
 
 const productSchema = zod.object({
   name: zod.string().min(1, "Name is required"),
@@ -32,6 +33,7 @@ export default function EditProductPage() {
 
   const { data: product, isLoading: isFetching } = useGetProductById(id);
   const { mutateAsync: updateProduct, isPending: isSaving } = useUpdateProduct();
+  const { data: session } = useSession();
 
   const {
     register,
@@ -124,6 +126,26 @@ export default function EditProductPage() {
         <p className="text-xs text-muted-foreground mt-2 font-medium">
           Loading listing details...
         </p>
+      </div>
+    );
+  }
+
+  const productOwnerId = typeof product?.createdBy === 'object' ? product?.createdBy?._id : product?.createdBy;
+  const isOwner = session?.user && (session.user as any).id === productOwnerId;
+
+  if (product && !isOwner) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10 text-destructive mb-4">
+          <ShieldAlert className="h-8 w-8" />
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Access Denied</h1>
+        <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+          You are not the owner of this product. Only the owner who uploaded this product can edit it.
+        </p>
+        <Link href="/products" className="btn-primary mt-6">
+          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Catalog
+        </Link>
       </div>
     );
   }
